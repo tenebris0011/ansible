@@ -1,0 +1,51 @@
+- name: Update Owned Servers
+  hosts: servers
+
+  tasks:
+    - name: Update all packages to the latest version
+      apt:
+        upgrade: dist
+        update_cache: yes
+      become: yes
+      become_method: sudo
+      become_user: root
+      when: ansible_user == 'nathan'
+
+    - name: Check if reboot required
+      register: reboot_required_file
+      stat:
+        path: /var/run/reboot-required
+      become: yes
+
+    - name: Reboot if required
+      reboot:
+        msg: "Reboot initiated by Ansible due to package updates"
+        connect_timeout: 5
+        reboot_timeout: 300
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+      when: reboot_required_file.stat.exists
+      become: yes
+
+- name: Update VPC Server
+  hosts: vpc
+
+  tasks:
+    - name: Update all packages to the latest version
+      apt:
+        upgrade: dist
+        update_cache: yes
+
+    - name: Check if reboot required
+      register: reboot_required_file
+      stat:
+        path: /var/run/reboot-required
+
+    - name: Reboot if required
+      reboot:
+        msg: "Reboot initiated by Ansible due to package updates"
+        connect_timeout: 5
+        reboot_timeout: 300
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+      when: reboot_required_file.stat.exists
