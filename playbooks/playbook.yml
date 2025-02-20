@@ -9,7 +9,6 @@
       become: yes
       become_method: sudo
       become_user: root
-      when: ansible_user == 'nathan'
 
     - name: Check if reboot required
       register: reboot_required_file
